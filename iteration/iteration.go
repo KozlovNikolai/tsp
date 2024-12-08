@@ -24,6 +24,7 @@ func IterationBranch() []bitree.Node {
 			fmt.Println("Матрица на входе в итератор:")
 			methods.PrintMatrix(models.MxRoot)
 		}
+
 		matrix := bitree.CloneMx(models.MxRoot)
 		// ok := IterationNode(models.MxRoot, bitree.BT.RootNode)
 		ok := IterationNode(matrix, bitree.BT.RootNode)
@@ -39,6 +40,9 @@ func IterationBranch() []bitree.Node {
 			}
 			var row, col int
 			// ищем в отложенных узлах узел с минимальным весом
+			for _, v := range bitree.BT.Result.Back {
+				fmt.Printf("id:%d, %s(%d,%d), W:%d\n", v.ID, v.Sign, v.Out, v.In, v.W)
+			}
 			bitree.BT.CurrentNode, weight, row, col = findInBack()
 			if models.Debug {
 				fmt.Printf("findBack - current Node: %v, weight: %d, row: %d, col: %d\n", bitree.BT.CurrentNode, weight, row, col)
@@ -84,7 +88,7 @@ func IterationNode(matrix [][]int, node *bitree.TreeNode) bool {
 
 				fmt.Printf("\nBreak, вес лучшего маршрута:%d - меньше веса создаваемого\n маршрута: %d, дальше идти нет смысла.\n", bitree.BT.CurWeight, bitree.BT.Result.Tour[len(bitree.BT.Result.Tour)-1].W)
 			}
-			return false
+			return true
 		}
 		if len(mx) == 3 {
 			if models.Debug {
@@ -101,8 +105,8 @@ func IterationNode(matrix [][]int, node *bitree.TreeNode) bool {
 }
 
 func Step(mc [][]int) [][]int {
+	saveMx := bitree.CloneMx(mc)
 	if models.Debug {
-
 		fmt.Println("Матрица на вход в STEP:")
 		methods.PrintMatrix(mc)
 	}
@@ -135,8 +139,10 @@ func Step(mc [][]int) [][]int {
 	if models.LowWeightLimit+nextNode.MaxSum >= models.LowWeightLimit+currentLowWeightLimit {
 		setCurrentRightNode = true
 	}
-	bitree.BT.CreateLeftNode(models.LowWeightLimit+nextNode.MaxSum, nextNode.RowName, nextNode.ColName, !setCurrentRightNode)
-	bitree.BT.CreateRightNode(models.LowWeightLimit+currentLowWeightLimit, nextNode.RowName, nextNode.ColName, setCurrentRightNode)
+	bitree.BT.CreateLeftNode(saveMx, models.LowWeightLimit+nextNode.MaxSum, nextNode.RowName, nextNode.ColName, !setCurrentRightNode)
+	bitree.BT.CreateRightNode(saveMx, models.LowWeightLimit+currentLowWeightLimit, nextNode.RowName, nextNode.ColName, setCurrentRightNode)
+	// bitree.BT.CreateLeftNode(models.LowWeightLimit+nextNode.MaxSum, nextNode.RowName, nextNode.ColName, !setCurrentRightNode)
+	// bitree.BT.CreateRightNode(models.LowWeightLimit+currentLowWeightLimit, nextNode.RowName, nextNode.ColName, setCurrentRightNode)
 	if setCurrentRightNode {
 		bitree.BT.CurrentNode = bitree.BT.CurrentNode.Right
 		models.LowWeightLimit = models.LowWeightLimit + currentLowWeightLimit
@@ -189,7 +195,7 @@ func EndingBranch(mx [][]int) {
 	for i := 1; i < len(mx); i++ {
 		for j := 1; j < len(mx[0]); j++ {
 			if mx[i][j] == 0 {
-				bitree.BT.CreateRightNode(models.LowWeightLimit, mx[i][0], mx[0][j], true)
+				bitree.BT.CreateRightNode(mx, models.LowWeightLimit, mx[i][0], mx[0][j], true)
 				bitree.BT.CurrentNode = bitree.BT.CurrentNode.Right
 			}
 		}

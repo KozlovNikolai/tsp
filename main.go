@@ -2,23 +2,24 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"tsp/bitree"
 	"tsp/iteration"
 	"tsp/methods"
 	"tsp/models"
 
-	"time"
 	"tsp/data"
 )
 
-var Debug = false
+var Debug = true
+var printTree = true
 
 func main() {
 	for i := range data.Matrixes {
 		if models.Debug {
 			fmt.Printf("\n#########################\n#\tMatrix: %d\t#\n#########################\n", i)
 		}
-		out := 1
+		out := 2
 		setOut(data.Matrixes[i], out)
 		t := time.Now()
 		calculate(data.Matrixes[i], out)
@@ -43,7 +44,7 @@ func calculate(mx [][]int, out int) {
 
 	// именуем столбцы и строки
 	matrixNamed := methods.SetNaming(mx)
-
+	//mx0 := bitree.CloneMx(mx)
 	models.MxRoot, models.LowWeightLimit = methods.MatrixConversion(matrixNamed)
 	if models.Debug {
 		fmt.Println("Исходная матрица:")
@@ -60,10 +61,23 @@ func calculate(mx [][]int, out int) {
 	CurrentNode текущий узел дерева
 	RootNode    корневой узел дерева */
 	bitree.BT = bitree.NewBiTree(matrixNamed, models.LowWeightLimit)
-
+	//bitree.BT.AllMxs[0] = mx0
 	toursArray := iteration.IterationBranch()
 	methods.PrintResult(toursArray, matrixNamed, out)
-	//bitree.PrintTree(bitree.BT.RootNode)
+	if printTree {
+		bitree.PrintTree(bitree.BT.RootNode)
+		methods.PrintMatrix(bitree.BT.AllMxs[3])
+		methods.PrintMatrix(bitree.BT.AllMxs[4])
+		// methods.PrintMatrix(bitree.BT.AllMxs[2])
+		// methods.PrintMatrix(bitree.BT.AllMxs[3])
+		// methods.PrintMatrix(bitree.BT.AllMxs[4])
+		// methods.PrintMatrix(bitree.BT.AllMxs[5])
+		// methods.PrintMatrix(bitree.BT.AllMxs[6])
+		fmt.Println("Все отложенные узлы:")
+		for _, v := range bitree.BT.Result.Back {
+			fmt.Printf("W:%d, %s(%d,%d), id: %d\n", v.W, v.Sign, v.Out, v.In, v.ID)
+		}
+	}
 }
 
 func printAllNodes() {
@@ -77,6 +91,6 @@ func printAllNodes() {
 	for _, v := range bitree.BT.Result.Back {
 		fmt.Printf("W:%d, %s(%d,%d), id: %d\n", v.W, v.Sign, v.Out, v.In, v.ID)
 		// methods.PrintMatrix(v.Mxs)
-		methods.PrintMatrix(models.MxRoot)
+		//	methods.PrintMatrix(bitree.BT.AllMxs[0])
 	}
 }

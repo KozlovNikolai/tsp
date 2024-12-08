@@ -35,7 +35,7 @@ type Node struct {
 	Out  int
 	Sign string
 	Node *TreeNode
-	//Mxs  [][]int
+	// Mxs  [][]int
 }
 
 type Results struct {
@@ -49,6 +49,7 @@ type BiTree struct {
 	Result      Results
 	CurrentNode *TreeNode
 	RootNode    *TreeNode
+	AllMxs      map[int][][]int
 	mutex       sync.Mutex
 }
 
@@ -62,6 +63,7 @@ func NewBiTree(mx [][]int, weight int) *BiTree {
 		Result:      Results{},
 		CurrentNode: &TreeNode{},
 		RootNode:    &TreeNode{},
+		AllMxs:      make(map[int][][]int),
 		mutex:       sync.Mutex{},
 	}
 
@@ -79,6 +81,7 @@ func NewBiTree(mx [][]int, weight int) *BiTree {
 		Node: bt.RootNode,
 		//Mxs:  CloneMx(mx),
 	})
+	bt.AllMxs[0] = mx
 	bt.Count++
 	return bt
 }
@@ -98,23 +101,24 @@ func CloneMx(mx [][]int) [][]int {
 	return mxClone
 }
 
-// func (bt *BiTree) CreateLeftNode(mx [][]int, w, o, i int, setCurrent bool) {
-func (bt *BiTree) CreateLeftNode(w, o, i int, setCurrent bool) {
+func (bt *BiTree) CreateLeftNode(mx [][]int, w, o, i int, setCurrent bool) {
+	// func (bt *BiTree) CreateLeftNode(w, o, i int, setCurrent bool) {
 	bt.mutex.Lock()
 	defer bt.mutex.Unlock()
 	if models.Debug {
-		fmt.Printf("Left: w:%d, out:%d,in:%d\n", w, o, i)
+		fmt.Printf("Left: id:%d, w:%d, out:%d,in:%d\n", bt.Count, w, o, i)
 	}
 
 	// nd := Node{ID: bt.Count, W: w, Out: o, Sign: "-", In: i, Mxs: CloneMx(mx)}
 	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "-", In: i}
 
-	err := bt.CurrentNode.InsertLeft(fmt.Sprintf("w%d:-%d.%d", nd.W, nd.Out, nd.In))
+	err := bt.CurrentNode.InsertLeft(fmt.Sprintf("id%d:w%d:-%d.%d", nd.ID, nd.W, nd.Out, nd.In))
 	if err != nil {
 		log.Fatal("Insert Left node is failure: ", err)
 	}
 	nd.Node = bt.CurrentNode.Left
 	bt.State[bt.Count] = bt.CurrentNode.Left
+	bt.AllMxs[bt.Count] = CloneMx(mx)
 
 	if setCurrent {
 		bt.Result.Tour = append(bt.Result.Tour, nd)
@@ -129,22 +133,23 @@ func (bt *BiTree) CreateLeftNode(w, o, i int, setCurrent bool) {
 	}
 }
 
-// func (bt *BiTree) CreateRightNode(mx [][]int, w, o, i int, setCurrent bool) {
-func (bt *BiTree) CreateRightNode(w, o, i int, setCurrent bool) {
+func (bt *BiTree) CreateRightNode(mx [][]int, w, o, i int, setCurrent bool) {
+	// func (bt *BiTree) CreateRightNode(w, o, i int, setCurrent bool) {
 	bt.mutex.Lock()
 	defer bt.mutex.Unlock()
 	if models.Debug {
-		fmt.Printf("Right: w:%d, out:%d,in:%d\n", w, o, i)
+		fmt.Printf("Right: id:%d, w:%d, out:%d,in:%d\n", bt.Count, w, o, i)
 	}
 
 	// nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx)}
 	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i}
-	err := bt.CurrentNode.InsertRight(fmt.Sprintf("w%d:%d.%d", nd.W, nd.Out, nd.In))
+	err := bt.CurrentNode.InsertRight(fmt.Sprintf("id%d:w%d:%d.%d", nd.ID, nd.W, nd.Out, nd.In))
 	if err != nil {
 		log.Fatal("Insert Right node is failure: ", err)
 	}
 	nd.Node = bt.CurrentNode.Right
 	bt.State[bt.Count] = bt.CurrentNode.Right
+	bt.AllMxs[bt.Count] = CloneMx(mx)
 
 	if setCurrent {
 		bt.Result.Tour = append(bt.Result.Tour, nd)
@@ -159,21 +164,23 @@ func (bt *BiTree) CreateRightNode(w, o, i int, setCurrent bool) {
 	}
 }
 
-// func (bt *BiTree) CreateLastNode(mx [][]int, w, o, i int) {
-func (bt *BiTree) CreateLastNode(w, o, i int) {
+func (bt *BiTree) CreateLastNode(mx [][]int, w, o, i int) {
+	// func (bt *BiTree) CreateLastNode(w, o, i int) {
 	bt.mutex.Lock()
 	defer bt.mutex.Unlock()
 	if models.Debug {
-		fmt.Printf("Last: w:%d, out:%d,in:%d\n", w, o, i)
+		fmt.Printf("Last: id:%d, w:%d, out:%d,in:%d\n", bt.Count, w, o, i)
 	}
 	// nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx)}
 	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i}
-	err := bt.CurrentNode.InsertRight(fmt.Sprintf("w%d:%d.%d", nd.W, nd.Out, nd.In))
+	err := bt.CurrentNode.InsertRight(fmt.Sprintf("id%d:w%d:%d.%d", nd.ID, nd.W, nd.Out, nd.In))
 	if err != nil {
 		log.Fatal("Insert Last node is failure: ", err)
 	}
 	//nd.Node = bt.CurrentNode.Right
 	bt.State[bt.Count] = bt.CurrentNode.Right
+	bt.AllMxs[bt.Count] = CloneMx(mx)
+
 	bt.Result.Tour = append(bt.Result.Tour, nd)
 	bt.Count++
 	if models.Debug {

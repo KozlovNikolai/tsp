@@ -34,13 +34,19 @@ func FindCellWithMaxMin(mx [][]int) models.CellWithMaxMin {
 				}
 				// находим минимальное значение в колонке
 				minCol = findMinFromArray(colArr, i)
+				// if models.Debug {
+				// 	fmt.Printf("coord by index: %dx%d, min row: %d, min column: %d, sum: %d, maxSum: %d\n", i, j, minRow, minCol, minRow+minCol, result.MaxSum)
+				// }
 				if minCol+minRow > result.MaxSum {
 					result = models.CellWithMaxMin{
 						RowName: mx[i][0],
 						ColName: mx[0][j],
 						MaxSum:  minCol + minRow,
 					}
-				} else {
+				} else if result.MaxSum == 0 {
+					// if models.Debug {
+					// 	fmt.Printf("ELSE coord by index: %dx%d, min row: %d, min column: %d, sum: %d, maxSum: %d\n", i, j, minRow, minCol, minRow+minCol, result.MaxSum)
+					// }
 					for indR := 1; indR < len(mx); indR++ {
 						for indC := 1; indC < len(mx[0]); indC++ {
 							if mx[indR][indC] == 0 {
@@ -50,9 +56,11 @@ func FindCellWithMaxMin(mx [][]int) models.CellWithMaxMin {
 									MaxSum:  minCol + minRow,
 								}
 							}
-
 						}
 					}
+					// if models.Debug {
+					// 	fmt.Printf("ELSE coord by index: %dx%d, min row: %d, min column: %d, sum: %d, maxSum: %d\n", i, j, minRow, minCol, minRow+minCol, result.MaxSum)
+					// }
 				}
 			}
 		}
