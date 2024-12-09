@@ -132,6 +132,7 @@ func (bt *BiTree) CreateLeftNode(mx [][]int, w, o, i int, setCurrent bool) {
 
 	if setCurrent {
 		bt.CurrentID = nd.ID
+		bt.Result.Tour = nil
 		//bt.Result.Tour = append(bt.Result.Tour, nd)
 		// bt.CurrentNode = bt.CurrentNode.Left
 	} else {

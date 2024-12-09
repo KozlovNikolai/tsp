@@ -2,7 +2,6 @@ package iteration
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"tsp/bitree"
 	"tsp/data"
@@ -38,10 +37,11 @@ func IterationBranch() []bitree.Node {
 			}
 			var row, col, id int
 			// ищем в отложенных узлах узел с минимальным весом
-			for _, v := range bitree.BT.Result.Back {
-				fmt.Printf("id:%d, %s(%d,%d), W:%d\n", v.ID, v.Sign, v.Out, v.In, v.W)
-			}
+			// for _, v := range bitree.BT.Result.Back {
+			// 	fmt.Printf("id:%d, %s(%d,%d), W:%d\n", v.ID, v.Sign, v.Out, v.In, v.W)
+			// }
 			bitree.BT.CurrentNode, weight, row, col, id = findInBack()
+			fmt.Printf("findBack - current Node: %v, weight: %d, row: %d, col: %d\n", bitree.BT.CurrentNode, weight, row, col)
 			if models.Debug {
 				fmt.Printf("findBack - current Node: %v, weight: %d, row: %d, col: %d\n", bitree.BT.CurrentNode, weight, row, col)
 			}
@@ -58,9 +58,21 @@ func IterationBranch() []bitree.Node {
 				break
 			}
 
-			//models.MxRoot[row][col] = data.Inf
 			bitree.BT.CurrentID = id
-			models.MxRoot = bitree.CloneMx(bitree.BT.AllNodes[bitree.BT.CurrentID].Mxs)
+			// models.MxRoot = bitree.CloneMx(bitree.BT.AllNodes[bitree.BT.CurrentID].Mxs)
+			models.MxRoot = bitree.CloneMx(bitree.BT.AllNodes[0].Mxs)
+			if bitree.BT.AllNodes[id].Sign == "-" {
+				// fmt.Println("Node: 1")
+				// methods.PrintMatrix(bitree.BT.AllNodes[1].Mxs)
+				// fmt.Println("Node: 2")
+				// methods.PrintMatrix(bitree.BT.AllNodes[2].Mxs)
+				// fmt.Println("Node: 27")
+				// methods.PrintMatrix(bitree.BT.AllNodes[27].Mxs)
+				//	methods.PrintMatrix(models.MxRoot)
+				//	bitree.PrintTree(bitree.BT.RootNode)
+				models.MxRoot[row][col] = data.Inf
+			}
+
 			models.MxRoot, models.LowWeightLimit = methods.MatrixConversion(models.MxRoot)
 			models.LowWeightLimit = weight
 		} else {
@@ -94,21 +106,23 @@ func IterationNode(matrix [][]int) bool {
 	// создаем узлы ветви:
 	for {
 		if models.Debug {
-
 			fmt.Println("________________________ Начало создания узла _______________________")
 		}
 		mx, isRight := Step(matrix)
+		if len(bitree.BT.Result.Tour) > 1 {
+			//	fmt.Printf("\nBreak, вес лучшего маршрута:%d, вес создаваемого маршрута: %d\n", bitree.BT.CurWeight, bitree.BT.Result.Tour[len(bitree.BT.Result.Tour)-1].W)
+		}
 		if isRight {
 			if bitree.BT.CurWeight < bitree.BT.Result.Tour[len(bitree.BT.Result.Tour)-1].W {
+				fmt.Printf("\nBreak, вес лучшего маршрута:%d - меньше веса создаваемого\n маршрута: %d, дальше идти нет смысла.\n", bitree.BT.CurWeight, bitree.BT.Result.Tour[len(bitree.BT.Result.Tour)-1].W)
 				if models.Debug {
-
 					fmt.Printf("\nBreak, вес лучшего маршрута:%d - меньше веса создаваемого\n маршрута: %d, дальше идти нет смысла.\n", bitree.BT.CurWeight, bitree.BT.Result.Tour[len(bitree.BT.Result.Tour)-1].W)
 				}
 				return true
 			}
 			if len(mx) == 3 {
+				fmt.Printf("\nBreak, размер матрицы достиг: [%dx%d]\n", len(mx), len(mx[0]))
 				if models.Debug {
-
 					fmt.Printf("\nBreak, размер матрицы достиг: [%dx%d]\n", len(mx), len(mx[0]))
 				}
 				EndingBranch(mx)
@@ -118,10 +132,8 @@ func IterationNode(matrix [][]int) bool {
 			}
 			matrix = bitree.CloneMx(mx)
 		} else {
-
 			return false
 		}
-
 	}
 }
 
@@ -164,11 +176,17 @@ func Step(mc [][]int) ([][]int, bool) {
 	// маркируем строку и столбец для левого узла, имена и индексы совпадают, преобразовывать не нужно
 	//models.MxRoot[nextNode.RowName][nextNode.ColName] = data.Inf
 	//conversionRootMatrix, newLowWeightLimit := methods.MatrixConversion(models.MxRoot)
+
+	if nextNode.RowName == 12 && nextNode.ColName == 5 {
+		fmt.Println("*****************************************************************************************")
+		fmt.Printf("id=%d\n", bitree.BT.Count)
+		methods.PrintMatrix(models.MxRoot)
+	}
+
 	bitree.BT.CreateLeftNode(models.MxRoot, models.LowWeightLimit+nextNode.MaxSum, nextNode.RowName, nextNode.ColName, !setCurrentRightNode)
 	bitree.BT.CreateRightNode(conversionMatrix, models.LowWeightLimit+currentLowWeightLimit, nextNode.RowName, nextNode.ColName, setCurrentRightNode)
-	// bitree.BT.CreateLeftNode(models.LowWeightLimit+nextNode.MaxSum, nextNode.RowName, nextNode.ColName, !setCurrentRightNode)
-	// bitree.BT.CreateRightNode(models.LowWeightLimit+currentLowWeightLimit, nextNode.RowName, nextNode.ColName, setCurrentRightNode)
 	if setCurrentRightNode {
+		fmt.Println("Выбран правый узел.")
 		if models.Debug {
 			fmt.Println("Выбран правый узел.")
 		}
@@ -176,6 +194,7 @@ func Step(mc [][]int) ([][]int, bool) {
 		bitree.BT.CurrentNode = bitree.BT.CurrentNode.Right
 		models.LowWeightLimit = models.LowWeightLimit + currentLowWeightLimit
 	} else {
+		fmt.Println("Выбран левый узел.")
 		if models.Debug {
 			fmt.Println("Выбран левый узел.")
 		}
@@ -186,36 +205,146 @@ func Step(mc [][]int) ([][]int, bool) {
 }
 
 func markInfinityCells(mx [][]int, rowName, colName int) {
-	list := map[int]int{
+	infCellArr := infArr(rowName, colName)
+
+	for i := 1; i < len(mx); i++ {
+		for j := 1; j < len(mx[0]); j++ {
+			if _, ok := infCellArr[struct {
+				i int
+				j int
+			}{
+				i: mx[i][0],
+				j: mx[0][j],
+			}]; ok {
+				mx[i][j] = data.Inf
+			}
+		}
+
+	}
+
+	// // идем по колонкам
+	// for j := 1; j < len(mx[0]); j++ {
+	// 	name := mx[0][j] // берем имя колонки из матрицы
+	// 	count := 0       // счетчик итераций мапе
+	// 	for {
+	// 		count++
+	// 		value, ok := list[name] // ищем по имени колонки матрицы (как имя строки в списке) колонку из записей в построенного пути
+	// 		fmt.Printf("rowName:%d, colName:%d\n", rowName, colName)
+	// 		for key, val := range list {
+	// 			fmt.Printf("key:%d, value:%d\n", key, val)
+	// 		}
+	// 		fmt.Println("__________")
+	// 		if !ok { // если такой пары в построенном пути нет - прерываемся и берем следующую колонку из матрицы
+	// 			break
+	// 		}
+	// 		// если такую пару в построенном пути нашли, то идем по именам строк матрицы и ищем
+	// 		// совпадение имени строки матрицы  с именем колонки из найденой пары
+	// 		for i := 1; i < len(mx); i++ {
+	// 			if mx[i][0] == value { // если совпадение нашли - маркируем ячейку матрицы
+	// 				if count == (len(models.MxRoot) - 2) { //если
+	// 					//list[mx[1][0]] = mx[0][1]
+	// 					log.Println("---  Point ----")
+	// 					//return
+	// 					break
+	// 				}
+	// 				mx[i][j] = data.Inf
+	// 			}
+	// 		}
+	// 		n := list[value]
+	// 		if name != n {
+	// 			name = value
+	// 		}
+	// 	}
+	// }
+}
+
+// func markInfinityCells(mx [][]int, rowName, colName int) {
+// 	list := map[int]int{
+// 		rowName: colName,
+// 	}
+
+// 	for _, node := range bitree.BT.Result.Tour {
+// 		list[node.Out] = node.In
+// 	}
+
+// 	for j := 1; j < len(mx[0]); j++ {
+// 		name := mx[0][j]
+// 		count := 0
+// 		for {
+// 			count++
+// 			value, ok := list[name]
+// 			if !ok {
+// 				break
+// 			}
+// 			for i := 1; i < len(mx); i++ {
+// 				if mx[i][0] == value {
+// 					if count == (len(models.MxRoot) - 2) {
+// 						list[mx[1][0]] = mx[0][1]
+// 						log.Println("---  Point ----")
+// 						return
+// 					}
+// 					mx[i][j] = data.Inf
+// 				}
+// 			}
+// 			name = value
+// 		}
+// 	}
+// }
+
+//	func infArr(data map[int]int, rowName, colName int) (map[struct {
+//		i int
+//		j int
+//	}]struct{}, map[int]int) {
+func infArr(rowName, colName int) map[struct {
+	i int
+	j int
+}]struct{} {
+	// создаем мапу для пар из уже добавленных узлов тура и добавляем туда текущий создаваемый узел
+	tour := map[int]int{
 		rowName: colName,
 	}
 
+	// добавляем туда остальные существующие в результирующем туре узлы
 	for _, node := range bitree.BT.Result.Tour {
-		list[node.Out] = node.In
+		tour[node.Out] = node.In
 	}
 
-	for j := 1; j < len(mx[0]); j++ {
-		name := mx[0][j]
-		count := 0
+	// for key, value := range data {
+	// 	tour[key] = value
+	// }
+	// создаем список бесконечных ячеек
+	list := make(map[struct {
+		i int
+		j int
+	}]struct{})
+
+	for row, col := range tour {
+		list[struct {
+			i int
+			j int
+		}{
+			i: col,
+			j: row,
+		}] = struct{}{}
+
 		for {
-			count++
-			value, ok := list[name]
-			if !ok {
-				break
+			if val, ok := tour[col]; ok {
+				// fmt.Printf("***************************************Found key:%d, val:%d\n", col, val)
+				// for k, v := range tour {
+				// 	fmt.Printf("Tour key:%d, val:%d\n", k, v)
+				// }
+				list[struct {
+					i int
+					j int
+				}{i: val, j: row}] = struct{}{}
+				col = val
+				continue
 			}
-			for i := 1; i < len(mx); i++ {
-				if mx[i][0] == value {
-					if count == (len(models.MxRoot) - 2) {
-						list[mx[1][0]] = mx[0][1]
-						log.Println("---  Point ----")
-						return
-					}
-					mx[i][j] = data.Inf
-				}
-			}
-			name = value
+			break
 		}
 	}
+	// return list, tour
+	return list
 }
 
 func EndingBranch(mx [][]int) {
@@ -256,7 +385,6 @@ func findInBack() (*bitree.TreeNode, int, int, int, int) {
 
 	if bitree.BT.CurWeight > bitree.BT.Result.Back[n].W {
 		if models.Debug {
-
 			fmt.Printf("Найдено в отложенных:  W:%d, %s(%d,%d), id: %d\n",
 				bitree.BT.Result.Back[n].W,
 				bitree.BT.Result.Back[n].Sign,

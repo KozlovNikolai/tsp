@@ -2,6 +2,7 @@ package methods
 
 import (
 	"fmt"
+
 	"tsp/bitree"
 	"tsp/data"
 	"tsp/models"

@@ -3,16 +3,18 @@ package main
 import (
 	"fmt"
 	"time"
+
 	"tsp/bitree"
 	"tsp/iteration"
 	"tsp/methods"
+
 	"tsp/models"
 
 	"tsp/data"
 )
 
-var Debug = true
-var printTree = true
+var Debug = false
+var printTree = false
 
 func main() {
 	for i := range data.Matrixes {
@@ -71,13 +73,13 @@ func calculate(mx [][]int, out int) {
 		fmt.Println("models.MxRoot:")
 		methods.PrintMatrix(models.MxRoot)
 		fmt.Println("Node: 0")
-		methods.PrintMatrix(bitree.BT.AllNodes[0].Mxs)
-		fmt.Println("Node: 1")
-		methods.PrintMatrix(bitree.BT.AllNodes[1].Mxs)
-		fmt.Println("Node: 2")
-		methods.PrintMatrix(bitree.BT.AllNodes[2].Mxs)
-		fmt.Println("Node: 3")
-		methods.PrintMatrix(bitree.BT.AllNodes[3].Mxs)
+		// methods.PrintMatrix(bitree.BT.AllNodes[0].Mxs)
+		// fmt.Println("Node: 27")
+		// methods.PrintMatrix(bitree.BT.AllNodes[27].Mxs)
+		// fmt.Println("Node: 2")
+		// methods.PrintMatrix(bitree.BT.AllNodes[2].Mxs)
+		// fmt.Println("Node: 3")
+		// methods.PrintMatrix(bitree.BT.AllNodes[3].Mxs)
 		// methods.PrintMatrix(bitree.BT.AllMxs[4])
 		// methods.PrintMatrix(bitree.BT.AllMxs[5])
 		// methods.PrintMatrix(bitree.BT.AllMxs[6])
