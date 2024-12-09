@@ -1,0 +1,51 @@
+package iteration
+
+import (
+	"fmt"
+	"testing"
+)
+
+func Test_infArr(t *testing.T) {
+	type args struct {
+		data    map[int]int
+		rowName int
+		colName int
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[int]int
+	}{
+		{
+			name: "",
+			args: args{
+				data: map[int]int{
+					1:  4,
+					2:  3,
+					3:  4,
+					4:  5,
+					5:  6,
+					6:  7,
+					7:  8,
+					9:  10,
+					10: 11,
+					11: 12,
+					12: 13,
+					15: 23,
+					23: 3,
+					27: 28,
+				},
+				rowName: 1,
+				colName: 2,
+			},
+			want: map[int]int{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res, input := infArr(tt.args.data, tt.args.rowName, tt.args.colName)
+			fmt.Printf(" ВХОД: %+v\n", input)
+			fmt.Printf("ВЫХОД: %+v\n", res)
+		})
+	}
+}

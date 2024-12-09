@@ -2,7 +2,6 @@ package iteration
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"tsp/bitree"
 	"tsp/data"
@@ -38,9 +37,9 @@ func IterationBranch() []bitree.Node {
 			}
 			var row, col, id int
 			// ищем в отложенных узлах узел с минимальным весом
-			for _, v := range bitree.BT.Result.Back {
-				fmt.Printf("id:%d, %s(%d,%d), W:%d\n", v.ID, v.Sign, v.Out, v.In, v.W)
-			}
+			// for _, v := range bitree.BT.Result.Back {
+			// 	fmt.Printf("id:%d, %s(%d,%d), W:%d\n", v.ID, v.Sign, v.Out, v.In, v.W)
+			// }
 			bitree.BT.CurrentNode, weight, row, col, id = findInBack()
 			if models.Debug {
 				fmt.Printf("findBack - current Node: %v, weight: %d, row: %d, col: %d\n", bitree.BT.CurrentNode, weight, row, col)
@@ -58,11 +57,14 @@ func IterationBranch() []bitree.Node {
 				break
 			}
 
-			//models.MxRoot[row][col] = data.Inf
 			bitree.BT.CurrentID = id
 			models.MxRoot = bitree.CloneMx(bitree.BT.AllNodes[bitree.BT.CurrentID].Mxs)
+			if bitree.BT.AllNodes[id].Sign == "-" {
+				models.MxRoot[row][col] = data.Inf
+			}
 			models.MxRoot, models.LowWeightLimit = methods.MatrixConversion(models.MxRoot)
 			models.LowWeightLimit = weight
+			fmt.Print("+")
 		} else {
 			if models.Debug {
 				fmt.Printf("Current Weight: %d\n", bitree.BT.CurWeight)
@@ -83,6 +85,7 @@ func IterationBranch() []bitree.Node {
 			models.MxRoot[row][col] = data.Inf
 			models.MxRoot, models.LowWeightLimit = methods.MatrixConversion(models.MxRoot)
 			models.LowWeightLimit = weight
+			fmt.Print("-")
 		}
 
 	}
@@ -117,6 +120,7 @@ func IterationNode(matrix [][]int) bool {
 				return true
 			}
 			matrix = bitree.CloneMx(mx)
+			fmt.Print("|")
 		} else {
 
 			return false
@@ -186,37 +190,152 @@ func Step(mc [][]int) ([][]int, bool) {
 }
 
 func markInfinityCells(mx [][]int, rowName, colName int) {
-	list := map[int]int{
+	infCellArr := infArr(rowName, colName)
+
+	for i := 1; i < len(mx); i++ {
+		for j := 1; j < len(mx[0]); j++ {
+			if _, ok := infCellArr[struct {
+				i int
+				j int
+			}{
+				i: mx[i][0],
+				j: mx[0][j],
+			}]; ok {
+				mx[i][j] = data.Inf
+			}
+		}
+
+	}
+
+	// // идем по колонкам
+	// for j := 1; j < len(mx[0]); j++ {
+	// 	name := mx[0][j] // берем имя колонки из матрицы
+	// 	count := 0       // счетчик итераций мапе
+	// 	for {
+	// 		count++
+	// 		value, ok := list[name] // ищем по имени колонки матрицы (как имя строки в списке) колонку из записей в построенного пути
+	// 		fmt.Printf("rowName:%d, colName:%d\n", rowName, colName)
+	// 		for key, val := range list {
+	// 			fmt.Printf("key:%d, value:%d\n", key, val)
+	// 		}
+	// 		fmt.Println("__________")
+	// 		if !ok { // если такой пары в построенном пути нет - прерываемся и берем следующую колонку из матрицы
+	// 			break
+	// 		}
+	// 		// если такую пару в построенном пути нашли, то идем по именам строк матрицы и ищем
+	// 		// совпадение имени строки матрицы  с именем колонки из найденой пары
+	// 		for i := 1; i < len(mx); i++ {
+	// 			if mx[i][0] == value { // если совпадение нашли - маркируем ячейку матрицы
+	// 				if count == (len(models.MxRoot) - 2) { //если
+	// 					//list[mx[1][0]] = mx[0][1]
+	// 					log.Println("---  Point ----")
+	// 					//return
+	// 					break
+	// 				}
+	// 				mx[i][j] = data.Inf
+	// 			}
+	// 		}
+	// 		n := list[value]
+	// 		if name != n {
+	// 			name = value
+	// 		}
+	// 	}
+	// }
+}
+
+//	func infArr(data map[int]int, rowName, colName int) (map[struct {
+//		i int
+//		j int
+//	}]struct{}, map[int]int) {
+func infArr(rowName, colName int) map[struct {
+	i int
+	j int
+}]struct{} {
+	// создаем мапу для пар из уже добавленных узлов тура и добавляем туда текущий создаваемый узел
+	tour := map[int]int{
 		rowName: colName,
 	}
 
+	// добавляем туда остальные существующие в результирующем туре узлы
 	for _, node := range bitree.BT.Result.Tour {
-		list[node.Out] = node.In
+		tour[node.Out] = node.In
 	}
 
-	for j := 1; j < len(mx[0]); j++ {
-		name := mx[0][j]
-		count := 0
+	// for key, value := range data {
+	// 	tour[key] = value
+	// }
+	// создаем список бесконечных ячеек
+	list := make(map[struct {
+		i int
+		j int
+	}]struct{})
+
+	for row, col := range tour {
+		list[struct {
+			i int
+			j int
+		}{
+			i: col,
+			j: row,
+		}] = struct{}{}
+
 		for {
-			count++
-			value, ok := list[name]
-			if !ok {
-				break
+			if val, ok := tour[col]; ok {
+				//fmt.Printf("Found key:%d, val:%d\n", col, val)
+				list[struct {
+					i int
+					j int
+				}{i: val, j: row}] = struct{}{}
+				col = val
+				continue
 			}
-			for i := 1; i < len(mx); i++ {
-				if mx[i][0] == value {
-					if count == (len(models.MxRoot) - 2) {
-						list[mx[1][0]] = mx[0][1]
-						log.Println("---  Point ----")
-						return
-					}
-					mx[i][j] = data.Inf
-				}
-			}
-			name = value
+			break
 		}
 	}
+	// return list, tour
+	return list
 }
+
+// func markInfinityCells(mx [][]int, rowName, colName int) {
+// 	list := map[int]int{
+// 		rowName: colName,
+// 	}
+
+// 	for _, node := range bitree.BT.Result.Tour {
+// 		list[node.Out] = node.In
+// 	}
+
+// 	for j := 1; j < len(mx[0]); j++ {
+// 		name := mx[0][j]
+// 		count := 0
+// 		for {
+// 			count++
+// 			value, ok := list[name]
+// 			fmt.Printf("rowName:%d, colName:%d\n", rowName, colName)
+// 			for key, val := range list {
+// 				fmt.Printf("key:%d, value:%d\n", key, val)
+// 			}
+// 			fmt.Println("__________")
+// 			if !ok {
+// 				break
+// 			}
+// 			for i := 1; i < len(mx); i++ {
+// 				if mx[i][0] == value {
+// 					if count == (len(models.MxRoot) - 2) {
+// 						list[mx[1][0]] = mx[0][1]
+// 						log.Println("---  Point ----")
+// 						return
+// 					}
+// 					mx[i][j] = data.Inf
+// 				}
+// 			}
+// 			n := list[value]
+// 			if name != n {
+// 				name = value
+// 			}
+// 		}
+// 	}
+// }
 
 func EndingBranch(mx [][]int) {
 	if models.Debug {
@@ -233,11 +352,6 @@ func EndingBranch(mx [][]int) {
 		}
 	}
 }
-
-// rowIdx, colIdx, ok := methods.IdxByName(models.MxRoot, mx[1][0], mx[0][1])
-// if !ok {
-// 	log.Println("Ending branch: не могу получить индексы из имени !!!")
-// }
 
 func findInBack() (*bitree.TreeNode, int, int, int, int) {
 	if models.Debug {
