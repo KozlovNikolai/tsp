@@ -19,7 +19,7 @@ func main() {
 		if models.Debug {
 			fmt.Printf("\n#########################\n#\tMatrix: %d\t#\n#########################\n", i)
 		}
-		out := 3
+		out := 1
 		setOut(data.Matrixes[i], out)
 		t := time.Now()
 		calculate(data.Matrixes[i], out)
@@ -66,10 +66,18 @@ func calculate(mx [][]int, out int) {
 	methods.PrintResult(toursArray, matrixNamed, out)
 	if printTree {
 		bitree.PrintTree(bitree.BT.RootNode)
-		methods.PrintMatrix(bitree.BT.AllMxs[3])
-		methods.PrintMatrix(bitree.BT.AllMxs[4])
-		// methods.PrintMatrix(bitree.BT.AllMxs[2])
-		// methods.PrintMatrix(bitree.BT.AllMxs[3])
+		// _, h := methods.MatrixConversion(bitree.BT.AllMxs[0])
+		// fmt.Printf("H: %d\n", h)
+		fmt.Println("models.MxRoot:")
+		methods.PrintMatrix(models.MxRoot)
+		fmt.Println("Node: 0")
+		methods.PrintMatrix(bitree.BT.AllNodes[0].Mxs)
+		fmt.Println("Node: 1")
+		methods.PrintMatrix(bitree.BT.AllNodes[1].Mxs)
+		fmt.Println("Node: 2")
+		methods.PrintMatrix(bitree.BT.AllNodes[2].Mxs)
+		fmt.Println("Node: 3")
+		methods.PrintMatrix(bitree.BT.AllNodes[3].Mxs)
 		// methods.PrintMatrix(bitree.BT.AllMxs[4])
 		// methods.PrintMatrix(bitree.BT.AllMxs[5])
 		// methods.PrintMatrix(bitree.BT.AllMxs[6])

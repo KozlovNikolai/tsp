@@ -35,7 +35,7 @@ type Node struct {
 	Out  int
 	Sign string
 	Node *TreeNode
-	// Mxs  [][]int
+	Mxs  [][]int
 }
 
 type Results struct {
@@ -49,7 +49,8 @@ type BiTree struct {
 	Result      Results
 	CurrentNode *TreeNode
 	RootNode    *TreeNode
-	AllMxs      map[int][][]int
+	AllNodes    map[int]*Node
+	CurrentID   int
 	mutex       sync.Mutex
 }
 
@@ -63,7 +64,8 @@ func NewBiTree(mx [][]int, weight int) *BiTree {
 		Result:      Results{},
 		CurrentNode: &TreeNode{},
 		RootNode:    &TreeNode{},
-		AllMxs:      make(map[int][][]int),
+		AllNodes:    make(map[int]*Node),
+		CurrentID:   0,
 		mutex:       sync.Mutex{},
 	}
 
@@ -81,7 +83,15 @@ func NewBiTree(mx [][]int, weight int) *BiTree {
 		Node: bt.RootNode,
 		//Mxs:  CloneMx(mx),
 	})
-	bt.AllMxs[0] = mx
+	bt.AllNodes[0] = &Node{
+		ID:   0,
+		W:    weight,
+		In:   0,
+		Out:  0,
+		Sign: "",
+		Node: bt.RootNode,
+		Mxs:  mx,
+	}
 	bt.Count++
 	return bt
 }
@@ -110,7 +120,7 @@ func (bt *BiTree) CreateLeftNode(mx [][]int, w, o, i int, setCurrent bool) {
 	}
 
 	// nd := Node{ID: bt.Count, W: w, Out: o, Sign: "-", In: i, Mxs: CloneMx(mx)}
-	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "-", In: i}
+	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "-", In: i, Mxs: CloneMx(mx)}
 
 	err := bt.CurrentNode.InsertLeft(fmt.Sprintf("id%d:w%d:-%d.%d", nd.ID, nd.W, nd.Out, nd.In))
 	if err != nil {
@@ -118,10 +128,11 @@ func (bt *BiTree) CreateLeftNode(mx [][]int, w, o, i int, setCurrent bool) {
 	}
 	nd.Node = bt.CurrentNode.Left
 	bt.State[bt.Count] = bt.CurrentNode.Left
-	bt.AllMxs[bt.Count] = CloneMx(mx)
+	bt.AllNodes[bt.Count] = &nd
 
 	if setCurrent {
-		bt.Result.Tour = append(bt.Result.Tour, nd)
+		bt.CurrentID = nd.ID
+		//bt.Result.Tour = append(bt.Result.Tour, nd)
 		// bt.CurrentNode = bt.CurrentNode.Left
 	} else {
 		bt.Result.Back = append(bt.Result.Back, nd)
@@ -142,16 +153,17 @@ func (bt *BiTree) CreateRightNode(mx [][]int, w, o, i int, setCurrent bool) {
 	}
 
 	// nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx)}
-	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i}
+	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx)}
 	err := bt.CurrentNode.InsertRight(fmt.Sprintf("id%d:w%d:%d.%d", nd.ID, nd.W, nd.Out, nd.In))
 	if err != nil {
 		log.Fatal("Insert Right node is failure: ", err)
 	}
 	nd.Node = bt.CurrentNode.Right
 	bt.State[bt.Count] = bt.CurrentNode.Right
-	bt.AllMxs[bt.Count] = CloneMx(mx)
+	bt.AllNodes[bt.Count] = &nd
 
 	if setCurrent {
+		bt.CurrentID = nd.ID
 		bt.Result.Tour = append(bt.Result.Tour, nd)
 		// bt.CurrentNode = bt.CurrentNode.Right
 	} else {
@@ -172,15 +184,15 @@ func (bt *BiTree) CreateLastNode(mx [][]int, w, o, i int) {
 		fmt.Printf("Last: id:%d, w:%d, out:%d,in:%d\n", bt.Count, w, o, i)
 	}
 	// nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx)}
-	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i}
+	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx)}
 	err := bt.CurrentNode.InsertRight(fmt.Sprintf("id%d:w%d:%d.%d", nd.ID, nd.W, nd.Out, nd.In))
 	if err != nil {
 		log.Fatal("Insert Last node is failure: ", err)
 	}
 	//nd.Node = bt.CurrentNode.Right
 	bt.State[bt.Count] = bt.CurrentNode.Right
-	bt.AllMxs[bt.Count] = CloneMx(mx)
-
+	bt.AllNodes[bt.Count] = &nd
+	bt.CurrentID = nd.ID
 	bt.Result.Tour = append(bt.Result.Tour, nd)
 	bt.Count++
 	if models.Debug {
