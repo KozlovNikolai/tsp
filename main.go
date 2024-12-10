@@ -13,8 +13,8 @@ import (
 	"tsp/data"
 )
 
-var Debug = false
-var printTree = false
+var Debug = true
+var printTree = true
 
 func main() {
 	for i := range data.Matrixes {
@@ -46,13 +46,14 @@ func calculate(mx [][]int, out int) {
 
 	// именуем столбцы и строки
 	matrixNamed := methods.SetNaming(mx)
+	models.MxOriginal = bitree.CloneMx(matrixNamed)
 	//mx0 := bitree.CloneMx(mx)
 	models.MxRoot, models.LowWeightLimit = methods.MatrixConversion(matrixNamed)
 	if models.Debug {
 		fmt.Println("Исходная матрица:")
 		methods.PrintMatrix(matrixNamed)
-		fmt.Println("Приведённая исходная матрица:")
-		methods.PrintMatrix(models.MxRoot)
+		// fmt.Println("Приведённая исходная матрица:")
+		// methods.PrintMatrix(models.MxRoot)
 		fmt.Printf("Нижняя весовая граница: %d\n", models.LowWeightLimit)
 	}
 	/* создаем корневой узел дерева с параметрами:

@@ -7,7 +7,7 @@ import (
 	"tsp/models"
 )
 
-func RemoveCellFromMatrixByIndex(mx [][]int, nameRow int, nameCol int) [][]int {
+func RemoveCellFromMatrixByName(mx [][]int, nameRow int, nameCol int) [][]int {
 	idxRow, idxCol, ok := IdxByName(mx, nameRow, nameCol)
 	if !ok {
 		log.Println("Первый: не могу получить индексы из имени !!!")

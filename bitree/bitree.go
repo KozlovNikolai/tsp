@@ -52,7 +52,7 @@ type BiTree struct {
 	Result      Results
 	CurrentNode *TreeNode
 	RootNode    *TreeNode
-	AllNodes    map[int]*Node
+	AllNodes    map[int]Node
 	CurrentID   int
 	mutex       sync.Mutex
 }
@@ -67,7 +67,7 @@ func NewBiTree(mx [][]int, weight int) *BiTree {
 		Result:      Results{},
 		CurrentNode: &TreeNode{},
 		RootNode:    &TreeNode{},
-		AllNodes:    make(map[int]*Node),
+		AllNodes:    make(map[int]Node),
 		CurrentID:   0,
 		mutex:       sync.Mutex{},
 	}
@@ -86,7 +86,7 @@ func NewBiTree(mx [][]int, weight int) *BiTree {
 		Node: bt.RootNode,
 		//Mxs:  CloneMx(mx),
 	})
-	bt.AllNodes[0] = &Node{
+	bt.AllNodes[0] = Node{
 		ID:   0,
 		W:    weight,
 		In:   0,
@@ -131,7 +131,7 @@ func (bt *BiTree) CreateLeftNode(parID int, mx [][]int, w, o, i int, setCurrent 
 	}
 	nd.Node = bt.CurrentNode.Left
 	bt.State[bt.Count] = bt.CurrentNode.Left
-	bt.AllNodes[bt.Count] = &nd
+	bt.AllNodes[bt.Count] = nd
 
 	if setCurrent {
 		bt.CurrentID = nd.ID
@@ -165,7 +165,7 @@ func (bt *BiTree) CreateRightNode(parID int, mx [][]int, w, o, i int, setCurrent
 	}
 	nd.Node = bt.CurrentNode.Right
 	bt.State[bt.Count] = bt.CurrentNode.Right
-	bt.AllNodes[bt.Count] = &nd
+	bt.AllNodes[bt.Count] = nd
 
 	if setCurrent {
 		bt.CurrentID = nd.ID
@@ -196,7 +196,7 @@ func (bt *BiTree) CreateLastNode(parID int, mx [][]int, w, o, i int) {
 	}
 	//nd.Node = bt.CurrentNode.Right
 	bt.State[bt.Count] = bt.CurrentNode.Right
-	bt.AllNodes[bt.Count] = &nd
+	bt.AllNodes[bt.Count] = nd
 	bt.CurrentID = nd.ID
 	bt.Result.Tour = append(bt.Result.Tour, nd)
 	bt.Count++

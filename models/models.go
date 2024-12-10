@@ -14,6 +14,7 @@ var LowWeightLimit int
 var LowerWeightFound int
 var Debug bool
 var MxRoot [][]int
+var MxOriginal [][]int
 
 type NamesOfIndexes struct {
 	mu          sync.Mutex
