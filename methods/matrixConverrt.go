@@ -1,7 +1,6 @@
 package methods
 
 import (
-	"math"
 	"tsp/data"
 )
 
@@ -42,7 +41,7 @@ func rowsConversion(mx [][]int) [][]int {
 	}
 	// идем по строкам исключая строку с заголовками и ищем минимумы в каждой строке
 	for i := 1; i < rows; i++ {
-		min := math.MaxInt
+		min := data.Inf
 		// идем по ячейкам строки исключая заголовок строки
 		for j := 1; j < cols; j++ {
 			// находим минимум в строке
@@ -85,7 +84,7 @@ func columnsConversion(mx [][]int) ([][]int, int) {
 	}
 	// идем по колонке, исключая колонку с заголовками
 	for j := 1; j < cols-1; j++ {
-		min := math.MaxInt
+		min := data.Inf
 		// идем по ячейкам колонки исключая заголовок колонки
 		for i := 1; i < rows; i++ {
 			if mx[i][j] < data.Inf {
@@ -94,7 +93,7 @@ func columnsConversion(mx [][]int) ([][]int, int) {
 				}
 			}
 		}
-		// if min == math.MaxInt {
+		// if min == data.Inf {
 		// 	min = 0
 		// }
 		// вычитаем найденный минимум из каждого элемента колонки, исключая заголовок

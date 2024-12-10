@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math"
 	"strings"
 	"sync"
+	"tsp/data"
 	"tsp/models"
 )
 
@@ -63,7 +63,7 @@ var BT *BiTree
 
 func NewBiTree(mx [][]int, weight int) *BiTree {
 	bt := &BiTree{
-		CurWeight:   math.MaxInt,
+		CurWeight:   data.Inf,
 		State:       make(map[int]*TreeNode),
 		Count:       0,
 		Result:      Results{},
@@ -140,7 +140,7 @@ func (bt *BiTree) CreateLeftNode(parID int, mx [][]int, w, o, i int, setCurrent 
 
 	if setCurrent {
 		bt.CurrentID = nd.ID
-		bt.Result.Tour = nil
+		//bt.Result.Tour = nil
 		//bt.Result.Tour = append(bt.Result.Tour, nd)
 		//bt.Result.Tour = nil
 		// bt.CurrentNode = bt.CurrentNode.Left
@@ -150,6 +150,7 @@ func (bt *BiTree) CreateLeftNode(parID int, mx [][]int, w, o, i int, setCurrent 
 
 	bt.Count++
 	if models.Debug {
+		fmt.Printf("id:%d, parId:%d, w:%d, %s(%d,%d)\n", nd.ID, nd.ParentID, nd.W, nd.Sign, nd.Out, nd.In)
 		fmt.Println("________________________ Узел создан _______________________")
 	}
 }
@@ -186,6 +187,7 @@ func (bt *BiTree) CreateRightNode(parID int, mx [][]int, w, o, i int, setCurrent
 
 	bt.Count++
 	if models.Debug {
+		fmt.Printf("id:%d, parId:%d, w:%d, %s(%d,%d)\n", nd.ID, nd.ParentID, nd.W, nd.Sign, nd.Out, nd.In)
 		fmt.Println("________________________ Узел создан _______________________")
 	}
 }
@@ -214,6 +216,7 @@ func (bt *BiTree) CreateLastNode(parID int, mx [][]int, w, o, i int) {
 	bt.Result.Tour = append(bt.Result.Tour, nd)
 	bt.Count++
 	if models.Debug {
+		fmt.Printf("id:%d, parId:%d, w:%d, %s(%d,%d)\n", nd.ID, nd.ParentID, nd.W, nd.Sign, nd.Out, nd.In)
 		fmt.Println("________________________ Узел создан _______________________")
 	}
 }

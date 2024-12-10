@@ -2,7 +2,7 @@ package data
 
 import "math"
 
-var Inf = math.MaxInt
+var Inf = math.MaxInt / 2
 var Matrixes = [][][]int{
 	// {
 	// 	{0, 0, -1},

@@ -2,7 +2,6 @@ package methods
 
 import (
 	"fmt"
-	"math"
 	"tsp/data"
 	"tsp/models"
 )
@@ -74,7 +73,7 @@ func FindCellWithMaxMin(mx [][]int) models.CellWithMaxMin {
 }
 
 func findMinFromArray(arr []int, exclude int) int {
-	min := math.MaxInt
+	min := data.Inf
 	for i := 1; i < len(arr); i++ {
 		if i != exclude && arr[i] < data.Inf && arr[i] < min {
 			min = arr[i]

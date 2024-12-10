@@ -65,7 +65,7 @@ func calculate(mx [][]int, out int) {
 	RootNode    корневой узел дерева */
 	bitree.BT = bitree.NewBiTree(matrixNamed, models.LowWeightLimit)
 	//bitree.BT.AllMxs[0] = mx0
-	toursArray := iteration.IterationBranch()
+	toursArray := iteration.IterationBranch(out)
 	methods.PrintResult(toursArray, matrixNamed, out)
 	//methods.PrintArrayOfNodes(toursArray)
 	// printAllNodes()
