@@ -32,6 +32,8 @@ type TreeNode struct {
 type Node struct {
 	ID       int
 	ParentID int
+	LeftID   int
+	RightID  int
 	W        int
 	In       int
 	Out      int
@@ -124,6 +126,9 @@ func (bt *BiTree) CreateLeftNode(parID int, mx [][]int, w, o, i int, setCurrent 
 
 	// nd := Node{ID: bt.Count, W: w, Out: o, Sign: "-", In: i, Mxs: CloneMx(mx)}
 	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "-", In: i, Mxs: CloneMx(mx), ParentID: parID}
+	curNode := bt.AllNodes[bt.CurrentID]
+	curNode.LeftID = nd.ID
+	bt.AllNodes[bt.CurrentID] = curNode
 
 	err := bt.CurrentNode.InsertLeft(fmt.Sprintf("id%d:w%d:-%d.%d|%d", nd.ID, nd.W, nd.Out, nd.In, nd.ParentID))
 	if err != nil {
@@ -159,6 +164,10 @@ func (bt *BiTree) CreateRightNode(parID int, mx [][]int, w, o, i int, setCurrent
 
 	// nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx)}
 	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx), ParentID: parID}
+	curNode := bt.AllNodes[bt.CurrentID]
+	curNode.RightID = nd.ID
+	bt.AllNodes[bt.CurrentID] = curNode
+
 	err := bt.CurrentNode.InsertRight(fmt.Sprintf("id%d:w%d:%d.%d|%d", nd.ID, nd.W, nd.Out, nd.In, nd.ParentID))
 	if err != nil {
 		log.Fatal("Insert Right node is failure: ", err)
@@ -190,6 +199,10 @@ func (bt *BiTree) CreateLastNode(parID int, mx [][]int, w, o, i int) {
 	}
 	// nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx)}
 	nd := Node{ID: bt.Count, W: w, Out: o, Sign: "+", In: i, Mxs: CloneMx(mx), ParentID: parID}
+	curNode := bt.AllNodes[bt.CurrentID]
+	curNode.RightID = nd.ID
+	bt.AllNodes[bt.CurrentID] = curNode
+
 	err := bt.CurrentNode.InsertRight(fmt.Sprintf("id%d:w%d:%d.%d|%d", nd.ID, nd.W, nd.Out, nd.In, nd.ParentID))
 	if err != nil {
 		log.Fatal("Insert Last node is failure: ", err)

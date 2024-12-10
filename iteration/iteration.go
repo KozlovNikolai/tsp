@@ -244,17 +244,17 @@ func Step(mc [][]int) ([][]int, bool) {
 
 		grandParentID := bitree.BT.AllNodes[parentID].ParentID
 		bitree.BT.CurrentNode = bitree.BT.AllNodes[grandParentID].Node.Left
-		//bitree.BT.CurrentID = bitree.BT.AllNodes[].ID
+		id := bitree.BT.AllNodes[grandParentID].LeftID
 		models.LowWeightLimit = bitree.BT.AllNodes[grandParentID].W
-		mx = bitree.CloneMx(bitree.BT.AllNodes[grandParentID].Mxs)
+		mx = bitree.CloneMx(bitree.BT.AllNodes[id].Mxs)
 		if models.Debug {
 			fmt.Println("Выбран верхний альтернативный узел.")
 			fmt.Printf("id:%d,%s(%d,%d),W:%d\n",
-				bitree.BT.AllNodes[grandParentID].ID,
-				bitree.BT.AllNodes[grandParentID].Sign,
-				bitree.BT.AllNodes[grandParentID].Out,
-				bitree.BT.AllNodes[grandParentID].In,
-				bitree.BT.AllNodes[grandParentID].W)
+				bitree.BT.AllNodes[id].ID,
+				bitree.BT.AllNodes[id].Sign,
+				bitree.BT.AllNodes[id].Out,
+				bitree.BT.AllNodes[id].In,
+				bitree.BT.AllNodes[id].W)
 			methods.PrintMatrix(mx)
 		}
 		return mx, isRight
